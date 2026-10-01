@@ -1,0 +1,55 @@
+/* ==========================================================================
+   Responsive — mobile is the product. Targets: 360 · 390 · 430.
+   Larger screens keep the same utility, centred at ~480px.
+   ========================================================================== */
+
+/* Small phones (≤ 360px) */
+@media (max-width: 370px) {
+  :root { --gutter: 16px; }
+  .title { font-size: 30px; }
+  .lede { font-size: 16px; }
+  .view-empty { padding-top: var(--s-6); }
+  .timer { font-size: 50px; }
+  .plate { min-width: 72px; padding: 6px 10px 5px; }
+  .plate-value { font-size: 40px; }
+  .field-pair { gap: var(--s-4); }
+  .field-sign input { font-size: 34px; }
+  .facts { grid-template-columns: 1.3fr 1fr; }
+  .fact + .fact { padding-left: var(--s-3); }
+  .fact-value { font-size: 14px; }
+}
+
+/* Short screens (landscape phones, small viewports) */
+@media (max-height: 640px) {
+  .view-empty { padding-top: var(--s-5); }
+  .stage { margin-bottom: var(--s-5); }
+  .view-saved { padding-top: var(--s-5); }
+  .block { padding: var(--s-4) 0; }
+  .actions { padding-top: var(--s-5); }
+}
+
+/* Large phones (≥ 420px) */
+@media (min-width: 420px) {
+  :root { --gutter: 24px; }
+}
+
+/* Tablet & desktop: centre the utility, keep controls narrow */
+@media (min-width: 600px) {
+  body {
+    /* Quiet frame so the app column reads as a device, not a stretched page */
+    background:
+      linear-gradient(var(--line), var(--line)) calc(50% - var(--app-max) / 2) 0 / 1px 100% no-repeat,
+      linear-gradient(var(--line), var(--line)) calc(50% + var(--app-max) / 2) 0 / 1px 100% no-repeat,
+      var(--bg);
+  }
+  .app { --gutter: 32px; }
+  .view-empty { padding-top: 72px; }
+  .dock, .actions { padding-bottom: var(--s-7); }
+  .sheet { border-left: 1px solid var(--line); border-right: 1px solid var(--line); border-top: 1px solid var(--line); }
+  .toast { top: 76px; }
+}
+
+@media (min-width: 600px) and (min-height: 900px) {
+  /* Tall screens: don't let the primary action drift to the far bottom */
+  .app { min-height: min(100dvh, 920px); margin-top: max(0px, calc((100dvh - 920px) / 2)); }
+}

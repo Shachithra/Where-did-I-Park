@@ -1,0 +1,179 @@
+/* ==========================================================================
+   Motion — every animation communicates a state change.
+   Timings: press 100–150 · UI 180–250 · enter 200–350 · sheet 300–400 · GPS 400–600
+   ========================================================================== */
+
+/* ---------- A. Entrance (app boot + view changes) ---------- */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes sink-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(8px); }
+}
+
+.is-entering [data-enter] {
+  animation: rise-in var(--t-enter) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+.is-exiting [data-enter] {
+  animation: sink-out 200ms var(--ease-in) both;
+  animation-delay: calc(var(--i, 0) * 30ms);
+}
+
+/* P sign entrance on the empty screen: drops in like a sign being hung */
+@keyframes sign-in {
+  0%   { opacity: 0; transform: translateY(-10px) rotate(-4deg); }
+  60%  { opacity: 1; transform: translateY(1px) rotate(1deg); }
+  100% { opacity: 1; transform: none; }
+}
+.is-entering .stage[data-gps="idle"] .stage-sign { animation: sign-in 520ms var(--ease-out) 160ms both; }
+
+/* ---------- C. GPS searching ---------- */
+@keyframes ring {
+  0%   { opacity: .55; transform: scale(.12); }
+  70%  { opacity: .12; }
+  100% { opacity: 0;   transform: scale(1); }
+}
+@keyframes ring-collapse {
+  from { opacity: .35; transform: scale(.9); }
+  to   { opacity: 0;   transform: scale(.12); }
+}
+@keyframes marker-breathe {
+  0%, 100% { transform: scale(.3); }
+  50%      { transform: scale(.36); }
+}
+@keyframes marker-settle {
+  0%   { transform: scale(.52); }
+  55%  { transform: scale(.26); }
+  100% { transform: scale(.32); }
+}
+
+.stage[data-gps="seeking"] .stage-sign,
+.stage[data-gps="locked"] .stage-sign,
+.stage[data-gps="saved"] .stage-sign { opacity: 0; transform: scale(.35); }
+
+.stage[data-gps="seeking"] .stage-rings span { animation: ring 1.8s var(--ease-out) infinite; }
+.stage[data-gps="seeking"] .stage-rings span:nth-child(2) { animation-delay: .6s; }
+.stage[data-gps="seeking"] .stage-rings span:nth-child(3) { animation-delay: 1.2s; }
+.stage[data-gps="seeking"] .stage-marker { transform: scale(.3); animation: marker-breathe 1.2s ease-in-out infinite; }
+
+/* ---------- D. GPS success ---------- */
+.stage[data-gps="locked"] .stage-rings span { animation: ring-collapse 320ms var(--ease-out) both; }
+.stage[data-gps="locked"] .stage-marker { transform: scale(.32); animation: marker-settle 420ms var(--ease-out) both; }
+
+.stage[data-gps="saved"] .stage-marker { transform: scale(1); background: var(--ok); }
+.stage[data-gps="saved"] .stage-check path { stroke-dashoffset: 0; }
+
+/* Error: sign loses its colour, badge pops in */
+.stage[data-gps="error"] .stage-sign {
+  background: transparent; color: var(--ink-3); border: 2px dashed #BDBCB5;
+}
+.stage[data-gps="error"] .stage-badge { transform: scale(1); }
+
+@keyframes nudge {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.is-shake { animation: nudge 260ms var(--ease-out); }
+
+/* Status-line dot pulse (used while searching in both views) */
+@keyframes dot-ping {
+  0%   { transform: scale(1); opacity: .5; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+.status .dot.is-pulsing::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  box-shadow: 0 0 0 1.5px currentColor;
+  animation: dot-ping 1.2s var(--ease-out) infinite;
+}
+
+/* Status text swap */
+@keyframes status-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+.status.is-changing > * { animation: status-in 220ms var(--ease-out) both; }
+
+/* Button label swap + busy dots */
+@keyframes label-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.btn.is-swapping .btn-label,
+.btn.is-swapping .btn-icon { animation: label-in 200ms var(--ease-out) both; }
+
+@keyframes check-pop {
+  0% { transform: scale(.4); opacity: 0; }
+  70% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.btn.is-done .btn-icon .i { animation: check-pop 320ms var(--ease-out) both; }
+
+/* Tiny locating spinner inside the button icon slot */
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-spinner {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid currentColor; border-right-color: transparent;
+  animation: spin .7s linear infinite;
+}
+
+/* ---------- F. Parking spot reveal ---------- */
+@keyframes spot-reveal {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+.is-entering .bay-text,
+.is-refreshing .bay-text { animation: spot-reveal 380ms var(--ease-out) 120ms both; }
+.is-entering .plate,
+.is-refreshing .plate { animation: spot-reveal 340ms var(--ease-out) 200ms both; }
+.is-refreshing .note-block,
+.is-refreshing .facts { animation: rise-in 280ms var(--ease-out) both; }
+
+/* Brief yellow flash on a value that just changed */
+@keyframes changed {
+  0%   { background-color: rgba(244, 196, 48, .45); }
+  100% { background-color: rgba(244, 196, 48, 0); }
+}
+.is-changed { animation: changed 900ms var(--ease-out) both; border-radius: 2px; }
+
+/* ---------- G. Navigation ---------- */
+.btn-go:active .go-arrow,
+.btn-go.is-pressed .go-arrow,
+.btn-go.is-opening .go-arrow { transform: translate(4px, -2px); }
+@media (hover: hover) { .btn-go:hover .go-arrow { transform: translate(2px, -1px); } }
+
+/* ---------- Menu ---------- */
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-4px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes menu-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-4px) scale(.97); }
+}
+.menu-pop.is-open { animation: menu-in 180ms var(--ease-out) both; }
+.menu-pop.is-closing { animation: menu-out 140ms var(--ease-in) both; }
+
+/* ==========================================================================
+   Reduced motion: keep state changes, drop the movement.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+  /* Searching is still communicated: static rings instead of motion */
+  .stage[data-gps="seeking"] .stage-rings span { animation: none !important; opacity: .18; }
+  .stage[data-gps="seeking"] .stage-rings span:nth-child(1) { transform: scale(.4); }
+  .stage[data-gps="seeking"] .stage-rings span:nth-child(2) { transform: scale(.7); }
+  .stage[data-gps="seeking"] .stage-rings span:nth-child(3) { transform: scale(1); }
+  .stage[data-gps="seeking"] .stage-marker { animation: none !important; transform: scale(.32); }
+  .status .dot.is-pulsing::after { display: none; }
+  .btn-spinner { animation: none !important; border-right-color: currentColor; border-style: dotted; }
+}

@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>WhereDidIPark?</title>
+  <meta name="description" content="Save where you parked and get back to it. Park. Save. Find.">
+  <meta name="theme-color" content="#F4F3EF">
+  <meta name="color-scheme" content="light">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Parked">
+
+  <!-- Type -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+
+<!-- Icon sprite (Lucide, ISC licence) -->
+<svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-pin-off" viewBox="0 0 24 24"><path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"/><path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"/><path d="m2 2 20 20"/><path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+</svg>
+
+<div class="app" id="app" data-view="boot">
+
+  <header class="bar" data-enter style="--i:0">
+    <a class="brand" href="./" aria-label="WhereDidIPark? — reload">
+      <span class="brand-mark" aria-hidden="true">P</span>
+      <span class="brand-name">WhereDidIPark<span class="brand-q">?</span></span>
+    </a>
+
+    <div class="menu">
+      <button class="icon-btn menu-btn" id="menu-btn" type="button"
+              aria-haspopup="menu" aria-expanded="false" aria-controls="menu" aria-label="Open menu">
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      </button>
+      <div class="menu-pop" id="menu" role="menu" aria-label="App menu" hidden>
+        <button class="menu-item" role="menuitem" type="button" data-action="edit" data-when="saved">
+          <svg class="i" aria-hidden="true"><use href="#i-pencil"/></svg>Edit details
+        </button>
+        <button class="menu-item" role="menuitem" type="button" data-action="update" data-when="saved">
+          <svg class="i" aria-hidden="true"><use href="#i-locate"/></svg>Update location
+        </button>
+        <button class="menu-item" role="menuitem" type="button" data-action="install" hidden>
+          <svg class="i" aria-hidden="true"><use href="#i-download"/></svg>Install app
+        </button>
+        <button class="menu-item" role="menuitem" type="button" data-action="about">
+          <svg class="i" aria-hidden="true"><use href="#i-info"/></svg>About
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main" id="main">
+
+    <!-- ============ 01 · EMPTY / LOCATING / ERROR ============ -->
+    <section class="view view-empty" id="view-empty" aria-labelledby="empty-title" hidden>
+
+      <div class="stage" id="stage" data-gps="idle" aria-hidden="true" data-enter style="--i:1">
+        <div class="stage-sign">P</div>
+        <div class="stage-rings"><span></span><span></span><span></span></div>
+        <div class="stage-marker">
+          <svg class="stage-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" pathLength="1"/></svg>
+        </div>
+        <div class="stage-badge">!</div>
+      </div>
+
+      <div class="empty-copy" id="empty-copy" data-enter style="--i:2">
+        <p class="eyebrow eyebrow-danger" id="empty-eyebrow" hidden>
+          <svg class="i" aria-hidden="true"><use href="#i-pin-off"/></svg>
+          <span id="empty-eyebrow-text">Location access blocked</span>
+        </p>
+        <h1 class="title" id="empty-title">Where’s your car?</h1>
+        <p class="lede" id="empty-lede">Save your location before walking away.</p>
+        <p class="help" id="empty-help" hidden></p>
+      </div>
+
+      <div class="dock" data-enter style="--i:3">
+        <p class="status" id="gps-status" role="status" aria-live="polite"></p>
+        <button class="btn btn-primary" id="save-btn" type="button">
+          <span class="btn-icon" aria-hidden="true">
+            <svg class="i"><use href="#i-pin"/></svg>
+          </span>
+          <span class="btn-label" id="save-label">Save parking spot</span>
+        </button>
+        <p class="fineprint">
+          <svg class="i" aria-hidden="true"><use href="#i-lock"/></svg>
+          Location stays on this device.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ 03 · SAVED PARKING ============ -->
+    <section class="view view-saved" id="view-saved" aria-labelledby="saved-title" hidden>
+      <h1 class="sr-only" id="saved-title" tabindex="-1">Your parking spot</h1>
+
+      <div class="spot" data-enter style="--i:1">
+        <p class="label">Parked at</p>
+        <div class="spot-row" id="spot-row">
+          <p class="bay" id="bay">
+            <span class="sr-only">Parking spot </span><span class="bay-text" id="bay-text">B12</span>
+          </p>
+          <p class="plate" id="plate">
+            <span class="plate-label">Level</span>
+            <span class="plate-value" id="level-text">03</span>
+          </p>
+        </div>
+        <button class="link-btn" id="add-details" type="button" data-action="edit" hidden>
+          Add level &amp; spot <svg class="i" aria-hidden="true"><use href="#i-chev"/></svg>
+        </button>
+        <p class="status status-ok" id="loc-status" role="status" aria-live="polite">
+          <span class="dot" aria-hidden="true"></span><span class="status-text">Location saved</span>
+        </p>
+      </div>
+
+      <div class="rule" data-enter style="--i:2"></div>
+
+      <div class="block timer-block" data-enter style="--i:2">
+        <div>
+          <p class="label" id="timer-label">Parked for</p>
+          <p class="timer" id="timer" aria-labelledby="timer-label" role="timer" aria-live="off">
+            <span class="t-grp" data-u="h">00</span><span class="t-sep" aria-hidden="true">:</span><span class="t-grp" data-u="m">00</span><span class="t-sep" aria-hidden="true">:</span><span class="t-grp" data-u="s">00</span>
+          </p>
+        </div>
+        <div class="since">
+          <p class="label">Since</p>
+          <p class="since-value"><span id="since-time">—</span><span class="since-day" id="since-day"></span></p>
+        </div>
+      </div>
+
+      <div class="block note-block" id="note-block" data-enter style="--i:3" hidden>
+        <p class="label">Note</p>
+        <p class="note" id="note-text"></p>
+      </div>
+
+      <dl class="facts" data-enter style="--i:3">
+        <div class="fact">
+          <dt class="label">Location</dt>
+          <dd class="fact-value mono" id="coords">—</dd>
+        </div>
+        <div class="fact">
+          <dt class="label">GPS accuracy</dt>
+          <dd class="fact-value" id="accuracy">—</dd>
+        </div>
+      </dl>
+
+      <div class="actions" data-enter style="--i:4">
+        <a class="btn btn-primary btn-go" id="go-btn" href="#" target="_blank" rel="noopener">
+          <span class="btn-label" id="go-label">Take me there</span>
+          <svg class="i go-arrow" aria-hidden="true"><use href="#i-arrow"/></svg>
+        </a>
+
+        <ul class="list" role="list">
+          <li><button class="list-btn" type="button" data-action="edit">
+            <span>Edit details</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg>
+          </button></li>
+          <li><button class="list-btn" type="button" data-action="update">
+            <span>Update location</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg>
+          </button></li>
+          <li><button class="list-btn" type="button" data-action="clear">
+            <span>Clear parking</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg>
+          </button></li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ SHEETS ============ -->
+<div class="scrim" id="scrim" hidden></div>
+
+<!-- 02 · Parking details -->
+<div class="sheet" id="sheet-details" role="dialog" aria-modal="true" aria-labelledby="details-title" hidden>
+  <div class="sheet-grab" aria-hidden="true"><span></span></div>
+  <form class="sheet-body" id="details-form" novalidate autocomplete="off">
+    <p class="eyebrow eyebrow-ok" id="details-eyebrow">
+      <svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span>Location saved</span>
+    </p>
+    <h2 class="sheet-title" id="details-title">Add parking details</h2>
+    <p class="sheet-sub" id="details-sub">All optional. Anything that helps you find it again.</p>
+
+    <div class="fields">
+      <div class="field-pair">
+        <div class="field field-sign">
+          <label for="f-level">Level</label>
+          <input id="f-level" name="level" type="text" inputmode="text" maxlength="6"
+                 autocapitalize="characters" spellcheck="false" enterkeyhint="next" placeholder="03">
+        </div>
+        <div class="field field-sign">
+          <label for="f-spot">Parking spot</label>
+          <input id="f-spot" name="spot" type="text" inputmode="text" maxlength="8"
+                 autocapitalize="characters" spellcheck="false" enterkeyhint="next" placeholder="B12">
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-note">Note</label>
+        <input id="f-note" name="note" type="text" maxlength="80" enterkeyhint="done"
+               placeholder="Near the elevator" aria-describedby="note-count">
+        <span class="count" id="note-count" aria-live="off">0 / 80</span>
+      </div>
+    </div>
+
+    <div class="sheet-actions">
+      <button class="btn btn-primary" id="details-submit" type="submit">
+        <span class="btn-label" id="details-submit-label">Done</span>
+      </button>
+      <button class="btn btn-text" id="details-cancel" type="button">Skip for now</button>
+    </div>
+  </form>
+</div>
+
+<!-- Update location confirmation -->
+<div class="sheet" id="sheet-update" role="dialog" aria-modal="true" aria-labelledby="update-title" aria-describedby="update-desc" hidden>
+  <div class="sheet-grab" aria-hidden="true"><span></span></div>
+  <div class="sheet-body">
+    <p class="eyebrow"><svg class="i" aria-hidden="true"><use href="#i-locate"/></svg><span>Moved your vehicle?</span></p>
+    <h2 class="sheet-title" id="update-title">Update parking location?</h2>
+    <p class="sheet-sub" id="update-desc">Your current position will replace the saved one and the timer restarts. Level, spot and note are kept.</p>
+    <p class="status sheet-status" id="update-status" role="status" aria-live="polite"></p>
+    <div class="sheet-actions">
+      <button class="btn btn-primary" id="update-confirm" type="button">
+        <span class="btn-icon" aria-hidden="true"><svg class="i"><use href="#i-locate"/></svg></span>
+        <span class="btn-label">Use current location</span>
+      </button>
+      <button class="btn btn-text" type="button" data-close>Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Clear confirmation -->
+<div class="sheet" id="sheet-clear" role="dialog" aria-modal="true" aria-labelledby="clear-title" aria-describedby="clear-desc" hidden>
+  <div class="sheet-grab" aria-hidden="true"><span></span></div>
+  <div class="sheet-body">
+    <h2 class="sheet-title" id="clear-title">Remove parking spot?</h2>
+    <p class="sheet-sub" id="clear-desc">Your saved location and parking details will be removed.</p>
+    <div class="sheet-actions">
+      <button class="btn btn-danger" id="clear-confirm" type="button">
+        <span class="btn-icon" aria-hidden="true"><svg class="i"><use href="#i-trash"/></svg></span>
+        <span class="btn-label">Remove parking</span>
+      </button>
+      <button class="btn btn-text" type="button" data-close>Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- About -->
+<div class="sheet" id="sheet-about" role="dialog" aria-modal="true" aria-labelledby="about-title" hidden>
+  <div class="sheet-grab" aria-hidden="true"><span></span></div>
+  <div class="sheet-body">
+    <p class="about-mark" aria-hidden="true">P</p>
+    <h2 class="sheet-title" id="about-title">WhereDidIPark?</h2>
+    <p class="tagline">Park. Save. Find.</p>
+    <dl class="about-list">
+      <div><dt class="label">Storage</dt><dd>Only in this browser. Nothing is uploaded.</dd></div>
+      <div><dt class="label">Navigation</dt><dd>Opens Google Maps with walking directions.</dd></div>
+      <div><dt class="label">Version</dt><dd>1.0</dd></div>
+    </dl>
+    <div class="sheet-actions">
+      <button class="btn btn-text" type="button" data-close>Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden>
+  <svg class="i toast-icon" aria-hidden="true"><use href="#i-check"/></svg>
+  <span class="toast-text" id="toast-text"></span>
+</div>
+
+<noscript>
+  <p class="noscript">WhereDidIPark? needs JavaScript to save your location.</p>
+</noscript>
+</body>
+</html>
